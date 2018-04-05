@@ -26,11 +26,24 @@ func phpEncodeValue(buf *bytes.Buffer, value interface{}) (err error) {
     switch t := value.(type) {
     default:
         err = fmt.Errorf("Unexpected type %T", t)
+    case []interface{}:
+        buf.WriteString("a")
+        buf.WriteRune(TYPE_VALUE_SEPARATOR)
+        err = phpEncodeSimpleArrayCore(buf, t)
     case *interface{}:
         myInterface := *t
         myMap := myInterface.(map[string]interface{})
+        
+        err = phpEncodeValue(buf, myMap)
+        
+        // myMapInterface := make(map[interface{}]interface{})
+        // for key, value := range myMap {
+        //     myMapInterface[key] = value
+        // }
+        // err = phpEncodeValue(buf, myMapInterface)
+    case map[string]interface{}:
         myMapInterface := make(map[interface{}]interface{})
-        for key, value := range myMap {
+        for key, value := range t {
             myMapInterface[key] = value
         }
         err = phpEncodeValue(buf, myMapInterface)
@@ -93,6 +106,34 @@ func phpEncodeString(buf *bytes.Buffer, strValue string) {
     buf.WriteRune('"')
     buf.WriteString(strValue)
     buf.WriteRune('"')
+}
+
+func phpEncodeSimpleArrayCore(buf *bytes.Buffer, arrValue []interface{}) (err error) {
+    valLen := strconv.Itoa(len(arrValue))
+    buf.WriteString(valLen)
+    buf.WriteRune(TYPE_VALUE_SEPARATOR)
+    
+    buf.WriteRune('{')
+    for v := range arrValue {
+        if err = phpEncodeValue(buf, v); err != nil {
+            break
+        }
+        
+        // if intKey, _err := strconv.Atoi(fmt.Sprintf("%v", k)); _err == nil {
+        //     if err = phpEncodeValue(buf, intKey); err != nil {
+        //         break
+        //     }
+        // } else {
+        //     if err = phpEncodeValue(buf, k); err != nil {
+        //         break
+        //     }
+        // }
+        // if err = phpEncodeValue(buf, v); err != nil {
+        //     break
+        // }
+    }
+    buf.WriteRune('}')
+    return err
 }
 
 func phpEncodeArrayCore(buf *bytes.Buffer, arrValue map[interface{}]interface{}) (err error) {
