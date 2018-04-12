@@ -23,7 +23,7 @@ func resolveArgs() (*os.File, *os.File, int, int) {
 }
 
 func getInsert() ([]byte) {
-    format := "INSERT INTO `mdl_standard_log` (`%s`) VALUES\n"
+    format := "INSERT INTO `mdl_logstore_standard_log` (`%s`) VALUES\n"
     keys := Log{}.JsonKeys()
     insert := fmt.Sprintf(format, strings.Join(keys, "`,`"))
     

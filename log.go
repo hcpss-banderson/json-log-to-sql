@@ -69,7 +69,7 @@ func (l Log) ToInsert() string {
                 values[i] = "NULL"
             } else {
                 other, _ := PhpSerialize(value)
-                values[i] = fmt.Sprintf("'%s'", strings.Replace(other, "'", "\\'", -1))
+                values[i] = fmt.Sprintf("'%s'", strings.Replace(other, "'", "''", -1))
             }
         }
     }
